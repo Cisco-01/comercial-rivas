@@ -3,7 +3,7 @@ import type { StructureResolver } from "sanity/structure";
 // https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title("Grupo IAL Ecommerce")
+    .title("Comercial Rivas")
     .items([
       S.documentTypeListItem("category").title("Categorias"),
       S.documentTypeListItem("brand").title("Marcas"),
