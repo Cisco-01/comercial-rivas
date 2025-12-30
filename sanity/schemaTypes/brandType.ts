@@ -14,10 +14,24 @@ export const brandType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "slug",
+      type: "slug",
+      options: {
+        source: "name",
+      },
+    }),
+    defineField({
       name: "logo",
       title: "Logo",
       type: "image",
       options: { hotspot: true },
     }),
   ],
+
+  preview: {
+    select: {
+      title: "name",
+      media: "logo",
+    },
+  },
 });

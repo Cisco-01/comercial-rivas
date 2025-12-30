@@ -1,5 +1,7 @@
 import BlackFridayBanner from "@/components/BlackFridayBanner";
+import MarcasWall from "@/components/MarcasWall";
 import ProductsView from "@/components/ProductsView";
+import Slider from "@/components/Slider";
 import { getAllCategories } from "@/sanity/lib/categories/getAllCategories";
 import { getAllProducts } from "@/sanity/lib/products/getAllProducts";
 
@@ -14,10 +16,12 @@ export default async function Home() {
   
   return (
     <div>
+      <Slider />
       <BlackFridayBanner />
 
       {/* Renderizar los productos */}
       <ProductsView products={products} categories={categories} />
+      <MarcasWall />
     </div>
   );
 }
