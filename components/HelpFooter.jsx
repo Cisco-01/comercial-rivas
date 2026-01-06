@@ -17,28 +17,14 @@ function HelpFooter() {
             <h3 className="text-md font-semibold mb-2">Nuestros servicios</h3>
             <ul>
               <li>
-                <a
-                  href="#"
-                  className="hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="text-zinc-400 hover:text-neutral-500 text-sm">
-                    Asesoría Personalizada
-                  </span>
-                </a>
+                <span className="text-zinc-400 hover:text-neutral-500 text-sm">
+                  Asesoría Personalizada
+                </span>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="text-zinc-400 hover:text-neutral-500 text-sm">
-                    Importación de productos
-                  </span>
-                </a>
+                <span className="text-zinc-400 hover:text-neutral-500 text-sm">
+                  Importación de productos
+                </span>
               </li>
             </ul>
           </div>

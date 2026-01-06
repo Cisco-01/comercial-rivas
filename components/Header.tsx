@@ -11,6 +11,7 @@ import Link from "next/link";
 import Form from "next/form";
 import { PackageIcon, TrolleyIcon } from "@sanity/icons";
 import useBasketStore from "@/store/store";
+import Image from "next/image";
 
 function Header() {
   const { user } = useUser();
@@ -35,14 +36,13 @@ function Header() {
           href="/"
           className="text-2xl font-bold text-blue-500 hover:opacity-50 cursor-pointer mx-auto md:mx-0 uppercase"
         >
-          Comercial Rivas
-          {/*<Image
-            src="/images/UNIVERSAL-P1.png"
-            className="w-32"
+          <Image
+            src="/images/logo2.png"
+            className="w-20"
             width={2000}
             height={2000}
             alt=""
-          />*/}
+          />
         </Link>
 
         <Form
