@@ -7,6 +7,7 @@ import Link from "next/link";
 import useBasketStore from "@/store/store";
 import { verifyCheckoutSession } from "@/actions/verifyCheckoutSession";
 import Loader from "@/components/Loader";
+import { Order } from "@/sanity.types";
 
 function SuccessPage() {
   const searchParams = useSearchParams();
@@ -17,6 +18,32 @@ function SuccessPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
+
+  const [orderFromSanity, setOrderFromSanity] = useState<Order | null>(null);
+  const receiptUrl = orderFromSanity?.receiptUrl; // string | undefined
+
+  useEffect(() => {
+    async function verify() {
+      try {
+        const res = await fetch("/api/verify-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        if (!res.ok) throw new Error("Payment verification failed");
+
+        const order = await res.json();
+        setOrderFromSanity(order);
+      } catch (err) {
+        setError("Error verificando el pago. " + err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (sessionId) verify();
+  }, [sessionId]);
 
   useEffect(() => {
     async function verifySession() {
@@ -85,12 +112,12 @@ function SuccessPage() {
           </div>
         </div>
         <h1 className="text-4xl font-semibold mb-6 text-center">
-          Pago completado con éxito <br />
+          ¡Pago exitoso! <br />
         </h1>
 
         <div className="border-y border-gray-200 py-6 mb-6">
           <p className="text-gray-700 text-lg mb-4 text-center">
-            Tu orden ha sido confirmada y se enviará en breve.
+            Tu orden ha sido confirmada.
           </p>
           <div className="space-y-2 justify-center text-start items-center w-full flex">
             {orderNumber && (
@@ -108,6 +135,10 @@ function SuccessPage() {
                   >
                     {orderNumber}
                   </span>
+                </span>
+                <span>
+                  Total: {orderFromSanity?.totalPrice}{" "}
+                  {orderFromSanity?.currency ? orderFromSanity.currency.toUpperCase() : ""}
                 </span>
               </p>
             )}
@@ -129,6 +160,13 @@ function SuccessPage() {
             <Button asChild className="bg-green-600 hover:bg-green-700">
               <Link href="/orders">Ver detalle de la orden</Link>
             </Button>
+            {typeof receiptUrl === "string" && (
+              <Button asChild className="bg-green-600 hover:bg-green-700">
+                <Link href={receiptUrl} target="_blank" rel="noopener noreferrer">
+                  Ver comprobante
+                </Link>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <Link href="/">Continuar comprando</Link>
             </Button>

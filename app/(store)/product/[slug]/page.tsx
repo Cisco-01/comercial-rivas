@@ -1,12 +1,9 @@
 import AddToBasketButton from "@/components/AddToBasketButton";
 import {
-  LoadIcon,
-  ServiceVanIcon,
-  VanIcon,
-  WheelIcon,
   TagIcon,
 } from "@/components/DescriptionIcons";
 import { imageUrl } from "@/lib/imageUrl";
+import { Product } from "@/sanity.types";
 import { getProductBySlug } from "@/sanity/lib/products/getProductBySlug";
 import { PortableText } from "next-sanity";
 import Image from "next/image";
@@ -27,7 +24,7 @@ async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     !Array.isArray(product) && product.stock != null && product.stock <= 0;
 
   const listedDescription = () => {
-    const icons = [WheelIcon, VanIcon, LoadIcon, ServiceVanIcon, TagIcon];
+    const icons = [TagIcon];
 
     return (
       <div className="flex flex-col gap-x-4 gap-y-4 mb-6 items-start">
@@ -35,7 +32,9 @@ async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
           Array.isArray(product.description) &&
           icons.map((Icon, index) => (
             <div key={index} className="flex items-center">
-              <Icon />
+              <div>
+                <Icon />
+              </div>
               <div className="prose max-w-none ml-2">
                 {product.description && (
                   <PortableText value={[product.description[index]]} />
@@ -82,7 +81,10 @@ async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
             ) : null}
 
             {!Array.isArray(product) && (
-              <AddToBasketButton product={product} disabled={isOutOfStock} />
+              <AddToBasketButton
+                product={product as unknown as Product}
+                disabled={isOutOfStock}
+              />
             )}
           </div>
           {/* Tabla de especificaciones */}
@@ -132,87 +134,6 @@ async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
                         Modelo
                       </td>
                       <td className="px-4 py-2">{product.model?.name}</td>
-                    </tr>
-
-                    {/* Ancho */}
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Ancho
-                      </td>
-                      <td className="px-4 py-2">{product.width?.value}</td>
-                    </tr>
-
-                    {/* Perfil */}
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Perfil
-                      </td>
-                      <td className="px-4 py-2">{product.profile?.value}</td>
-                    </tr>
-
-                    {/* Aro */}
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Aro
-                      </td>
-                      <td className="px-4 py-2">{product.rim?.value}</td>
-                    </tr>
-
-                    {/* Aro permitido */}
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Aro permitido
-                      </td>
-                      <td className="px-4 py-2">{product.allowedRim?.value}</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Servicio
-                      </td>
-                      <td className="px-4 py-2">{product.service?.value}</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        IC/IV
-                      </td>
-                      <td className="px-4 py-2">{product.iciv?.value}</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Rango de velocidad
-                      </td>
-                      <td className="px-4 py-2">
-                        {product.speedRating?.value}
-                      </td>
-                    </tr>
-                    {/* Aplicación */}
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Aplicación
-                      </td>
-                      <td className="px-4 py-2">
-                        {product.application?.value}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Índice de carga
-                      </td>
-                      <td className="px-4 py-2">{product.loadIndex?.value}</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Pliets
-                      </td>
-                      <td className="px-4 py-2">{product.pliets?.value}</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 font-medium text-gray-700">
-                        Presentación
-                      </td>
-                      <td className="px-4 py-2">
-                        {product.presentation?.value}
-                      </td>
                     </tr>
                   </tbody>
                 </table>

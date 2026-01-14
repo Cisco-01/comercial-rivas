@@ -4,6 +4,11 @@ import { sanityFetch } from "../live";
 export const getProductBySlug = async (slug: string) => {
   const PRODUCT_BY_ID_QUERY = defineQuery(`
         *[_type=="product" && slug.current == $slug]{
+          _id,
+          _type,
+          _createdAt,
+          _updatedAt,
+          _rev,
           name,
           slug,
           image,

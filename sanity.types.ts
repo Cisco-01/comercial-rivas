@@ -208,7 +208,15 @@ export type Order = {
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
-  status?: "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+  status?:
+    | "pending"
+    | "paid"
+    | "shipped"
+    | "delivered"
+    | "cancelled"
+    | "returned"
+    | "failed";
+  receiptUrl?: string;
   orderDate?: string;
 };
 
@@ -462,6 +470,12 @@ export type AllSanitySchemaTypes =
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
+type ArrayOf<T> = Array<
+  T & {
+    _key: string;
+  }
+>;
+
 // Source: sanity\lib\brands\getAllBrands.ts
 // Variable: ALL_BRANDS_QUERY
 // Query: *[_type=="brand"] | order(name asc)
@@ -600,7 +614,15 @@ export type MY_ORDERS_QUERY_RESULT = Array<{
   totalPrice?: number;
   currency?: string;
   amountDiscount?: number;
-  status?: "cancelled" | "delivered" | "paid" | "pending" | "shipped";
+  status?:
+    | "cancelled"
+    | "delivered"
+    | "failed"
+    | "paid"
+    | "pending"
+    | "returned"
+    | "shipped";
+  receiptUrl?: string;
   orderDate?: string;
 }>;
 
@@ -846,8 +868,13 @@ export type PRODUCT_BY_CATEGORY_QUERY_RESULT = Array<{
 
 // Source: sanity\lib\products\getProductBySlug.ts
 // Variable: PRODUCT_BY_ID_QUERY
-// Query: *[_type=="product" && slug.current == $slug]{          name,          slug,          image,          description,          price,          category->{            title,            slug          },          stock,          brand->{            name,            logo          },          model->{            name          },          width->{            value          },          profile->{            value          },          rim->{            value          },          allowedRim->{            value          },          application->{            value          },          service->{            value          },          iciv->{            value          },          speedRating->{            value          },          loadIndex->{            value          },          pliets->{            value          },          presentation->{            value          },        } | order(name asc) [0]
+// Query: *[_type=="product" && slug.current == $slug]{          _id,          _type,          _createdAt,          _updatedAt,          _rev,          name,          slug,          image,          description,          price,          category->{            title,            slug          },          stock,          brand->{            name,            logo          },          model->{            name          },          width->{            value          },          profile->{            value          },          rim->{            value          },          allowedRim->{            value          },          application->{            value          },          service->{            value          },          iciv->{            value          },          speedRating->{            value          },          loadIndex->{            value          },          pliets->{            value          },          presentation->{            value          },        } | order(name asc) [0]
 export type PRODUCT_BY_ID_QUERY_RESULT = {
+  _id: string;
+  _type: "product";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   name: string | null;
   slug: Slug | null;
   image: {
@@ -1038,7 +1065,7 @@ declare module "@sanity/client" {
     '\n        *[_type=="product"] | order(name asc)': ALL_PRODUCTS_QUERY_RESULT;
     '\n        *[_type=="product" && references(*[_type=="brand" && slug.current == $brandSlug]._id)] | order(name asc)': PRODUCT_BY_BRAND_QUERY_RESULT;
     '\n        *[_type=="product"\n        && references(*[_type=="category" && slug.current == $categorySlug]._id)] | order(name asc)': PRODUCT_BY_CATEGORY_QUERY_RESULT;
-    '\n        *[_type=="product" && slug.current == $slug]{\n          name,\n          slug,\n          image,\n          description,\n          price,\n          category->{\n            title,\n            slug\n          },\n          stock,\n          brand->{\n            name,\n            logo\n          },\n          model->{\n            name\n          },\n          width->{\n            value\n          },\n          profile->{\n            value\n          },\n          rim->{\n            value\n          },\n          allowedRim->{\n            value\n          },\n          application->{\n            value\n          },\n          service->{\n            value\n          },\n          iciv->{\n            value\n          },\n          speedRating->{\n            value\n          },\n          loadIndex->{\n            value\n          },\n          pliets->{\n            value\n          },\n          presentation->{\n            value\n          },\n        } | order(name asc) [0]': PRODUCT_BY_ID_QUERY_RESULT;
+    '\n        *[_type=="product" && slug.current == $slug]{\n          _id,\n          _type,\n          _createdAt,\n          _updatedAt,\n          _rev,\n          name,\n          slug,\n          image,\n          description,\n          price,\n          category->{\n            title,\n            slug\n          },\n          stock,\n          brand->{\n            name,\n            logo\n          },\n          model->{\n            name\n          },\n          width->{\n            value\n          },\n          profile->{\n            value\n          },\n          rim->{\n            value\n          },\n          allowedRim->{\n            value\n          },\n          application->{\n            value\n          },\n          service->{\n            value\n          },\n          iciv->{\n            value\n          },\n          speedRating->{\n            value\n          },\n          loadIndex->{\n            value\n          },\n          pliets->{\n            value\n          },\n          presentation->{\n            value\n          },\n        } | order(name asc) [0]': PRODUCT_BY_ID_QUERY_RESULT;
     '\n    *[_type == "product" && (\n       name match $searchParam ||\n       pt::text(description) match $searchParam\n    )] | order(name asc)\n  ': PRODUCT_SEARCH_QUERY_RESULT;
     '\n        *[_type=="sale" && isActive == true && couponCode == $couponCode] | order(validFrom desc)[0]\n        ': ACTIVE_SALE_BY_COUPON_QUERY_RESULT;
   }

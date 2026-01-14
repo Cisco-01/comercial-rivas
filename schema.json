@@ -1084,8 +1084,23 @@
             {
               "type": "string",
               "value": "cancelled"
+            },
+            {
+              "type": "string",
+              "value": "returned"
+            },
+            {
+              "type": "string",
+              "value": "failed"
             }
           ]
+        },
+        "optional": true
+      },
+      "receiptUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       },

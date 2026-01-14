@@ -3,7 +3,9 @@ import { imageUrl } from "@/lib/imageUrl";
 import { getMyOrders } from "@/sanity/lib/orders/getMyOrders";
 import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 async function Orders() {
   const { userId } = await auth();
@@ -96,9 +98,18 @@ async function Orders() {
                 </div>
 
                 <div className="px-4 py-3 sm:px-6 sm:py-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-3 sm:mb-4">
-                    Order Items
-                  </p>
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <p className="text-sm font-semibold text-gray-600">
+                      Order Items
+                    </p>
+                    {order.receiptUrl && (
+                      <Button asChild className="bg-green-600 hover:bg-green-700 text-white text-sm">
+                        <Link href={order.receiptUrl} target="_blank" rel="noopener noreferrer">
+                          Ver comprobante
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
 
                   <div className="space-y-3 sm:space-y-4">
                     {order.products?.map((product) => (

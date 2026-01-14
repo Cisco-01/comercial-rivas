@@ -23,10 +23,13 @@ const useBasketStore = create<BasketState>()(
       items: [],
       addItem: (product) =>
         set((state) => {
+          const stock = product.stock ?? 0;
           const existingItem = state.items.find(
             (item) => item.product._id === product._id
           );
           if (existingItem) {
+            // don't add beyond stock
+            if (existingItem.quantity >= stock) return { items: state.items };
             return {
               items: state.items.map((item) =>
                 item.product._id === product._id
@@ -35,21 +38,22 @@ const useBasketStore = create<BasketState>()(
               ),
             };
           } else {
+            // only add if there's stock
+            if (stock <= 0) return { items: state.items };
             return {
               items: [...state.items, { product, quantity: 1 }],
             };
           }
         }),
-      removeItem: (productId) => {
+      removeItem: (product) => {
         set((state) => ({
-          items: state.items.reduce((acc, item) => {
-            if (item.product._id === productId._id) {
-              acc.push({ ...item, quantity: item.quantity - 1 });
-            } else {
-              acc.push(item);
-            }
-            return acc;
-          }, [] as BasketItem[]),
+          items: state.items
+            .map((item) =>
+              item.product._id === product._id
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+            )
+            .filter((item) => item.quantity > 0),
         }));
       },
       clearBasket: () => set({ items: [] }),
@@ -66,7 +70,7 @@ const useBasketStore = create<BasketState>()(
       getGroupedItems: () => get().items,
     }),
     {
-      name: "basket-storage", // unique name
+      name: "basket-storage",
     }
   )
 );

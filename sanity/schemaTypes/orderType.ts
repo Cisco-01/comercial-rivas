@@ -116,8 +116,15 @@ export const orderType = defineType({
           { title: "Enviado", value: "shipped" },
           { title: "Recibido", value: "delivered" },
           { title: "Cancelado", value: "cancelled" },
+          { title: "Devuelto", value: "returned" },
+          { title: "Fallido", value: "failed" },
         ],
       },
+    }),
+    defineField({
+      name: "receiptUrl",
+      title: "Comprobante Stripe",
+      type: "url",
     }),
     defineField({
       name: "orderDate",

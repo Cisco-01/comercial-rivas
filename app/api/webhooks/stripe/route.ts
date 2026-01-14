@@ -75,13 +75,23 @@ async function createSanityOrder(session: Stripe.Checkout.Session) {
   );
 
   const sanityProducts = lineItemsWithProduct.data.map((item) => ({
-    _key: crypto.randomUUID(),
-    product: {
-      _type: "reference",
-      _ref: (item.price?.product as Stripe.Product)?.metadata?.id,
-    },
+    productId: (item.price?.product as Stripe.Product)?.metadata?.id,
     quantity: item.quantity || 0,
   }));
+
+  // Obtener PaymentIntent y recibo
+  const paymentIntentId =
+    typeof payment_intent === "string"
+      ? payment_intent
+      : payment_intent?.id;
+
+  const chargesList = await stripe.charges.list({
+    payment_intent: paymentIntentId,
+    limit: 1,
+  });
+
+  const charge = chargesList.data[0];
+  const receiptUrl = charge?.receipt_url ?? null;
 
   const order = await backendClient.create({
     _type: "order",
@@ -96,11 +106,37 @@ async function createSanityOrder(session: Stripe.Checkout.Session) {
     amountDiscount: total_details?.amount_discount
       ? total_details.amount_discount / 100
       : 0,
-    products: sanityProducts,
+    products: sanityProducts.map((p) => ({
+      _key: crypto.randomUUID(),
+      product: { _type: "reference", _ref: p.productId },
+      quantity: p.quantity,
+    })),
     totalPrice: amount_total ? amount_total / 100 : 0,
     status: "paid",
     orderDate: new Date().toISOString(),
+    receiptUrl,
   });
 
+  // Descontar stock
+  await decrementStock(sanityProducts);
+
   return order;
+}
+
+interface ProductQuantity {
+  productId: string;
+  quantity: number;
+}
+
+async function decrementStock(products: ProductQuantity[]): Promise<void> {
+  const tx: ReturnType<typeof backendClient.transaction> =
+    backendClient.transaction();
+
+  products.forEach((item) => {
+    tx.patch(item.productId, {
+      inc: { stock: -item.quantity },
+    });
+  });
+
+  await tx.commit();
 }

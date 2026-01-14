@@ -53,12 +53,12 @@ function Footer() {
           >
             Política de Privacidad
           </Link>
-          <a
+          <Link
             href="/"
             className="text-slate-400 hover:text-orange-400 transition-colors"
           >
             Términos de Servicio
-          </a>
+          </Link>
         </div>
         {/*<BtnWspHelp />*/}
       </div>

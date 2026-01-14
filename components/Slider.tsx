@@ -4,7 +4,7 @@ import { useRef } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { Swiper as SwiperType } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -177,10 +177,10 @@ const Slider: React.FC = () => {
                 // Si el otro swiper ya existe, conéctalos usando Controller
                 if (heroSwiperRef.current) {
                   try {
-                    // usar any para evitar problemas de tipos en TS
-                    (swiper.controller as any).control = heroSwiperRef.current;
-                    (heroSwiperRef.current.controller as any).control = swiper;
-                  } catch (e) {
+                    // safe cast via unknown to avoid `any`
+                    (swiper.controller as unknown as { control?: SwiperType | null }).control = heroSwiperRef.current;
+                    (heroSwiperRef.current.controller as unknown as { control?: SwiperType | null }).control = swiper;
+                  } catch {
                     // ignore
                   }
                 }
@@ -258,14 +258,14 @@ const Slider: React.FC = () => {
             onSwiper={(swiper) => {
               heroSwiperRef.current = swiper;
               // Si el otro swiper ya existe, conéctalos usando Controller
-              if (swiperRef.current) {
-                try {
-                  (swiper.controller as any).control = swiperRef.current;
-                  (swiperRef.current.controller as any).control = swiper;
-                } catch (e) {
-                  // ignore
+                if (swiperRef.current) {
+                  try {
+                    (swiper.controller as unknown as { control?: SwiperType | null }).control = swiperRef.current;
+                    (swiperRef.current.controller as unknown as { control?: SwiperType | null }).control = swiper;
+                  } catch {
+                    // ignore
+                  }
                 }
-              }
             }}
             loop
             effect="fade"

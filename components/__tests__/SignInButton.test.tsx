@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 
 // Mock del paquete @clerk/nextjs para pruebas
 vi.mock("@clerk/nextjs", () => ({
-  SignInButton: (props: any) => (
+  SignInButton: (props: { children?: React.ReactNode }) => (
     <button data-testid="sign-in-button">{props.children ?? "Iniciar sesión"}</button>
   ),
 }));

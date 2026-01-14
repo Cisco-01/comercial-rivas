@@ -1,9 +1,7 @@
 import { imageUrl } from "@/lib/imageUrl";
 import { getAllBrands } from "@/sanity/lib/brands/getAllBrands";
-import { ArrowRight, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "./ui/button";
 
 async function MarcasWall() {
   const brands = await getAllBrands();
