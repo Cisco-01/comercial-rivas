@@ -48,40 +48,77 @@ export async function POST(req: Request) {
         { expand: ["data.price.product"] }
       );
 
-      type OrderProduct = { _key?: string; product: { _type?: string; _ref?: string } | string; quantity: number };
+      type OrderProduct = {
+        _key?: string;
+        product: { _type?: string; _ref?: string } | string;
+        quantity: number;
+      };
 
-      const sanityProducts: OrderProduct[] = lineItemsWithProduct.data.map((item: Stripe.LineItem) => ({
-        _key: crypto.randomUUID(),
-        product: {
-          _type: "reference",
-          _ref: (() => {
-            const prod = item.price?.product as Stripe.Product | string | undefined;
-            const metaId = typeof prod === "object" ? (prod as Stripe.Product).metadata?.id : undefined;
-            const prodId = typeof prod === "object" ? (prod as Stripe.Product).id : (typeof prod === "string" ? prod : undefined);
-            if (metaId) return metaId;
-            if (prodId) return prodId;
-            const desc = item.description || (typeof prod === "object" && prod !== null ? (prod as Stripe.Product).description : undefined);
-            if (desc) {
-              const m = desc.match(/Product ID:\s*(\S+)/i);
-              if (m) return m[1];
-            }
-            return undefined;
-          })(),
-        },
-        quantity: item.quantity || 0,
-      }));
+      const sanityProducts: OrderProduct[] = lineItemsWithProduct.data.map(
+        (item: Stripe.LineItem) => ({
+          _key: crypto.randomUUID(),
+          product: {
+            _type: "reference",
+            _ref: (() => {
+              const prod = item.price?.product as
+                | Stripe.Product
+                | string
+                | undefined;
+              const metaId =
+                typeof prod === "object"
+                  ? (prod as Stripe.Product).metadata?.id
+                  : undefined;
+              const prodId =
+                typeof prod === "object"
+                  ? (prod as Stripe.Product).id
+                  : typeof prod === "string"
+                    ? prod
+                    : undefined;
+              if (metaId) return metaId;
+              if (prodId) return prodId;
+              const desc =
+                item.description ||
+                (typeof prod === "object" && prod !== null
+                  ? (prod as Stripe.Product).description
+                  : undefined);
+              if (desc) {
+                const m = desc.match(/Product ID:\s*(\S+)/i);
+                if (m) return m[1];
+              }
+              return undefined;
+            })(),
+          },
+          quantity: item.quantity || 0,
+        })
+      );
 
       // Verify sanity products exist and try fallbacks
       const verifiedProducts: OrderProduct[] = [];
       for (const p of sanityProducts) {
-        const candidate = typeof p.product === "string" ? p.product : p.product?._ref;
-        const matchingLine = lineItemsWithProduct.data.find((li) => li.quantity === p.quantity) as Stripe.LineItem | undefined;
-        const productName = matchingLine?.price && typeof matchingLine.price.product !== "string" ? (matchingLine.price.product as Stripe.Product).name : undefined;
-        const resolved = await resolveSanityProduct(candidate, productName as string | undefined);
+        const candidate =
+          typeof p.product === "string" ? p.product : p.product?._ref;
+        const matchingLine = lineItemsWithProduct.data.find(
+          (li) => li.quantity === p.quantity
+        ) as Stripe.LineItem | undefined;
+        const productName =
+          matchingLine?.price && typeof matchingLine.price.product !== "string"
+            ? (matchingLine.price.product as Stripe.Product).name
+            : undefined;
+        const resolved = await resolveSanityProduct(
+          candidate,
+          productName as string | undefined
+        );
         if (resolved) {
-          verifiedProducts.push({ ...p, product: { _type: "reference", _ref: resolved } });
+          verifiedProducts.push({
+            ...p,
+            product: { _type: "reference", _ref: resolved },
+          });
         } else {
-          console.warn("Skipping product for verify-session: could not resolve Sanity product for", candidate, productName);
+          console.warn(
+            "Skipping product for verify-session: could not resolve Sanity product for",
+            candidate,
+            productName
+          );
         }
       }
 
@@ -108,13 +145,18 @@ export async function POST(req: Request) {
         receiptUrl,
       });
 
-      // Decrement stock in Sanity (best-effort)
+      // Decrementar stock en Sanity
       try {
         const tx = backendClient.transaction();
         productsToSave.forEach((item) => {
           let productId: string | undefined;
           if (typeof item.product === "string") productId = item.product;
-          else if (item.product && "_ref" in item.product && typeof item.product._ref === "string") productId = item.product._ref;
+          else if (
+            item.product &&
+            "_ref" in item.product &&
+            typeof item.product._ref === "string"
+          )
+            productId = item.product._ref;
           if (!productId) return;
           if (productId.startsWith("drafts.")) {
             productId = productId.replace(/^drafts\./, "");
@@ -127,35 +169,47 @@ export async function POST(req: Request) {
       }
     }
 
-async function resolveSanityProduct(
-  candidateId?: string,
-  productName?: string
-): Promise<string | undefined> {
-  if (!candidateId) return undefined;
-  let id = candidateId;
-  if (id.startsWith("drafts.")) id = id.replace(/^drafts\./, "");
+    async function resolveSanityProduct(
+      candidateId?: string,
+      productName?: string
+    ): Promise<string | undefined> {
+      if (!candidateId) return undefined;
+      let id = candidateId;
+      if (id.startsWith("drafts.")) id = id.replace(/^drafts\./, "");
 
-  try {
-    const count = await backendClient.fetch('count(*[_type=="product" && _id == $id])', { id });
-    if (count && count > 0) return id;
+      try {
+        const count = await backendClient.fetch(
+          'count(*[_type=="product" && _id == $id])',
+          { id }
+        );
+        if (count && count > 0) return id;
 
-    const bySlug = await backendClient.fetch('*[_type=="product" && slug.current == $slug][0]._id', { slug: candidateId });
-    if (bySlug) return bySlug;
+        const bySlug = await backendClient.fetch(
+          '*[_type=="product" && slug.current == $slug][0]._id',
+          { slug: candidateId }
+        );
+        if (bySlug) return bySlug;
 
-    if (productName) {
-      const byName = await backendClient.fetch('*[_type=="product" && name == $name][0]._id', { name: productName });
-      if (byName) return byName;
+        if (productName) {
+          const byName = await backendClient.fetch(
+            '*[_type=="product" && name == $name][0]._id',
+            { name: productName }
+          );
+          if (byName) return byName;
+        }
+      } catch (err) {
+        console.error("Error resolving Sanity product id:", err);
+      }
+
+      return undefined;
     }
-  } catch (err) {
-    console.error("Error resolving Sanity product id:", err);
-  }
-
-  return undefined;
-}
 
     return NextResponse.json(finalOrder);
   } catch (err) {
     console.error("Error verifying session:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

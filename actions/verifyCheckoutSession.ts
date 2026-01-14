@@ -1,7 +1,6 @@
 "use server";
 
 import { stripe } from "@/lib/stripe";
-import type Stripe from "stripe";
 
 export async function verifyCheckoutSession(
   sessionId: string,
