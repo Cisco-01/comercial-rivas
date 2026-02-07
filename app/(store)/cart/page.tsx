@@ -120,7 +120,7 @@ function BasketPage() {
           ))}
         </div>
 
-        <div className="w-full lg:w-80 lg:sticky lg:top-4 h-fit bg-white p-6 border rounded order-first lg:order-last fixed bottom-0 left-0 lg:left-auto">
+        <div className="w-full lg:w-80 lg:sticky lg:top-4 h-fit bg-white p-6 border rounded order-first lg:order-last left-0 lg:left-auto">
           <h3 className="text-xl font-semibold">Resumen</h3>
           <div className="mt-4 space-y-2">
             <p className="flex justify-between">
@@ -150,15 +150,11 @@ function BasketPage() {
             </Button>
           ) : (
             <SignInButton mode="modal">
-              <Button className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              <Button className="mt-4 w-full bg-blue-500 text-white p-6 rounded hover:bg-blue-600">
                 Iniciar sesión para pagar
               </Button>
             </SignInButton>
           )}
-        </div>
-
-        <div className="h-64 lg:h-0">
-          {/* Space for fixed checkout on mobile */}
         </div>
       </div>
     </div>
